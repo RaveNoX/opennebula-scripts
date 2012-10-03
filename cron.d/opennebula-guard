@@ -1,0 +1,5 @@
+#
+# cron.d/opennebula-dnsmasq updates dnsmasq pools from opennebula config
+#
+
+*/1 * * * * root /opt/vmstore/scripts/scripts/one-guard.py
