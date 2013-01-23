@@ -65,8 +65,9 @@ def updateVnet(ret):
 	for f in needFields:
 		if not f in ret:
 			return None
-
+	
 	if ret['type'] == 1:	
+		# fixed range
 		return None
 	else:
 		del ret['type']
@@ -83,6 +84,10 @@ def updateVnet(ret):
 		return None
 	else:
 		del tpl['dhcp-enable']
+
+	if 'mask' in tpl and not 'network-mask' in tpl:
+		tpl['network-mask'] = tpl['mask']
+		del tpl['mask']
 
 	if not 'network-mask' in tpl:
 		return None
@@ -144,7 +149,7 @@ def procVnet(vnet):
 				ret['range'] = scope
 				break
 
-	tplAllow = ['network-mask', 'gateway', 'dns', 'wins', 'ntp', 'domain', 'broadcast','domain-search']
+	tplAllow = ['network-mask', 'gateway', 'dns', 'wins', 'ntp', 'domain', 'broadcast','domain-search', 'mask']
 	tplPrefix = 'dhcp-'
 
 	# template	
@@ -171,7 +176,7 @@ def procVnet(vnet):
 
 				else:
 					rtpl[name] = n.firstChild.nodeValue
-					
+	
 	return updateVnet(ret)
 
 
@@ -182,7 +187,7 @@ def procVnets(dom):
 
 		if not vn is None:
 			ret.append(vn)
-	
+
 	return ret
 
 def prepareDnet(vnet):
@@ -574,6 +579,8 @@ def main():
 
 	vnets = procVnets(dom)
 	vnets = prepareVnets(vnets)
+
+	#print jsonDump(vnets)
 
 	if vnets is None:
 		print 'VNets not found'
