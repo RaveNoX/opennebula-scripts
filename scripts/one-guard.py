@@ -5,7 +5,7 @@ from datetime import datetime
 import sys, subprocess, json, hashlib
 
 one_vm_bin = 'onevm'
-
+action_command = ['delete', '--recreate']
 
 d_lcm_states = { 'LCM_INIT': 0, 'PROLOG': 1, 'BOOT': 2, 'RUNNING': 3, 'MIGRATE': 4, 'SAVE_STOP': 5, 'SAVE_SUSPEND': 6, 'SAVE_MIGRATE': 7, 'PROLOG_MIGRATE': 8, 'PROLOG_RESUME': 9, 'EPILOG_STOP': 10, 'EPILOG': 11, 'SHUTDOWN': 12, 'CANCEL': 13, 'FAILURE': 14, 'CLEANUP': 15, 'UNKNOWN': 16, 'HOTPLUG': 17 }
 
@@ -30,9 +30,17 @@ def getXml():
 	return minidom.parse(p.stdout)
 
 
-def doVmAction(vmid, action):
+def doVmAction(vmid, args):
 	global one_vm_bin
-	p = subprocess.Popen([one_vm_bin, action, str(vmid)], shell=False, stdout=subprocess.PIPE)
+	cmd_args = []
+	cmd_args.append(one_vm_bin)
+
+	for a in args:
+		cmd_args.append(a)
+
+	cmd_args.append(str(vmid))
+
+	p = subprocess.Popen(cmd_args, shell=False, stdout=subprocess.PIPE)
 	if p.wait() != 0:
 		return False
 
@@ -87,7 +95,7 @@ def restartUnknown(vms):
 	for vm in vms:
 		if vm['state_s'] == 'ACTIVE' and vm['lcm_state_s'] == 'UNKNOWN':
 			print 'VM "%s-%s" in UNKNOWN state, restarting...' % ( vm['id'], vm['name']  )
-			doVmAction(vm['id'], 'restart')
+			doVmAction(vm['id'], action_command)
 
 
 
