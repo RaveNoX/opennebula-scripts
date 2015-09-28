@@ -83,6 +83,8 @@ def main(args)
     unless $?.success?
       return 10
     end    
+  else
+    puts "No action required"
   end
 end
 
